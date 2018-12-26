@@ -1,3 +1,12 @@
+/* hacks */
+chrome.extension.sendRequest = (...args) => chrome.runtime.sendMessage.apply(chrome.runtime, args);
+chrome.extension.onRequest = (...args) => chrome.runtime.onMessage.apply(chrome.runtime, args);
+
+// chrome.tabs.sendRequest = (...args) => chrome.tabs.sendMessage.apply(chrome.tabs, args);
+// chrome.tabs.executeScript = (...args) => browser.tabs.executeScript.apply(browser.tabs, args);
+
+console.log(chrome.tabs);
+
 function captureVisible(ctx, dataCb) {
   ctx.editAction = "visible";
   chrome.windows.update(
@@ -127,7 +136,7 @@ function saveAndScroll(ctx){
 }
 
 function updateShortcutsRequest(tabId){
-  chrome.tabs.sendRequest(tabId, {action:"update_shortcuts", config: localStorage.msObj});
+  chrome.tabs.sendMessage(tabId, {action:"update_shortcuts", config: localStorage.msObj});
 }
 
 function newTab(ctx){
@@ -139,7 +148,6 @@ function newTab(ctx){
       url: "edit.html",
       windowId: ctx.windowId,
       active: true,
-      selected: true,
       openerTabId: ctx.tabId
     }, function(tab) {
       setContextForTab(tab, ctx);
@@ -181,10 +189,10 @@ function sendContentScriptRequest(ctx, request){
     console.log('check results:', tab, results);
     if (results === undefined) return;
     if (results && results[0] === true) {
-      chrome.tabs.sendRequest(tab, request);
+      chrome.tabs.sendMessage(tab, request);
     } else {
       injectContentScripts(tab, function(){
-        chrome.tabs.sendRequest(tab, request);
+        chrome.tabs.sendMessage(tab, request);
       });
     }
   });
@@ -222,7 +230,7 @@ function handleRequest(ctx, req, sender) {
       centerOffX: ctx.centerOffX,
       centerOffY: ctx.centerOffY
     };
-    chrome.tabs.sendRequest(ctx.editTabId, req);
+    chrome.tabs.sendMessage(ctx.editTabId, req);
     ctx.imageData = [];
     this.onload = null;
     testImage.src = "";
@@ -392,7 +400,7 @@ function getCurrentTab(sender, cb) {
   }
 }
 
-chrome.extension.onRequest.addListener(function(req, sender){
+chrome.runtime.onMessage.addListener(function(req, sender){
   if (req.action == "desktop") {
     // Desktop captures do not have tab to be associated with.
     var ctx = newContext();

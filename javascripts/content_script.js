@@ -1,3 +1,5 @@
+/** Hacks */
+
 function hasClass(a,b){
   return a.className.match(new RegExp("(\\s|^)"+b+"(\\s|$)"));
 }
@@ -436,7 +438,7 @@ function fixAndCapture() {
 
 function sendRequest(a){
   console.log('<', a.action, a);
-  chrome.extension.sendRequest(a);
+  chrome.runtime.sendMessage(a);
 }
 
 function enableFixedPosition(enabled){
@@ -503,7 +505,7 @@ var delayInterval = null;
 var vLast = false;
 var hLast = false;
 
-chrome.extension.onRequest.addListener(function(a){
+chrome.runtime.onMessage.addListener(function(a){
   console.log('>', a.action, a);
   switch (a.action){
     case "init_entire_capture":   initEntireCapture(); break;

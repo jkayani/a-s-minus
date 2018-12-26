@@ -4,14 +4,14 @@ $(document).ready(function(){
   function c(){$("ul").remove(),$("#capturing").fadeIn("slow")}
   function d(a){chrome.extension.sendRequest(a)}
   
-  chrome.windows.getCurrent(function(a){chrome.tabs.getSelected(a.id,function(b){chrome.browserAction.getBadgeText({tabId:b.id},function(b){"New"==b&&(chrome.browserAction.setBadgeText({text:""}),chrome.tabs.create({url:"http://www.appchangelog.com/log/19/Awesome-Screenshot:-Capture-&-Annotate/Awesome-screenshot-for-iOS-8"}),localStorage.isClickedOnNew="true",a.close())})})});
+  chrome.windows.getCurrent(function(a){chrome.tabs.query({active: true},function(b){chrome.browserAction.getBadgeText({tabId:b.id},function(b){"New"==b&&(chrome.browserAction.setBadgeText({text:""}),chrome.tabs.create({url:"http://www.appchangelog.com/log/19/Awesome-Screenshot:-Capture-&-Annotate/Awesome-screenshot-for-iOS-8"}),localStorage.isClickedOnNew="true",a.close())})})});
   
   b();
   a();
-  $('#version').text(chrome.app.getDetails().version);
+  // $('#version').text(chrome.app.getDetails().version);
   var canInject = true;
   chrome.windows.getCurrent(function(a){
-    chrome.tabs.getSelected(a.id,function(a){
+    chrome.tabs.query({active: true}, function([a]){
       var tabURL = a.url;
       // Can't inject scripts into chrome extension gallery or non-html pages.
       if (tabURL.match(/https:\/\/chrome.google.com\/webstore\/category\/extensions/) ||
@@ -31,7 +31,7 @@ $(document).ready(function(){
     });
   });
 
-  chrome.extension.onRequest.addListener(function(a){
+  chrome.runtime.onMessage.addListener(function(a){
     console.log(a);
     switch (a.action){
       case "shownew": window.close(); break;
@@ -41,12 +41,12 @@ $(document).ready(function(){
   $("a").click(function(){
     var a=this.id;
     if (a == "visible" || a == "delayed" || a == "selected" || a == "desktop") {
-      chrome.extension.sendRequest({action:a});
+      chrome.runtime.sendMessage({action:a});
       window.close();
     }
     if ("entire"==a) {
       c();
-      chrome.extension.sendRequest({action:a});
+      chrome.runtime.sendMessage({action:a});
       c();
     }
     if ("upload"==a){

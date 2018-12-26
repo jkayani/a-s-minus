@@ -179,7 +179,7 @@ function prepareEditArea(req) {
 
 function prepareTools(){
   $("#exit").click(function(){
-    chrome.extension.sendRequest({action:"exit"});
+    chrome.runtime.sendMessage({action:"exit"});
   });
 
   $("#tool-panel>div").click(function(a){
@@ -507,7 +507,7 @@ function save() {
     k.name = "CreateSaveWindow";
     k.align = "middle";
     swfobject.embedSWF("media/CreateSaveWindow.swf","flash-save","100","30",g,h,i,j,k);
-    chrome.extension.sendRequest({
+    chrome.runtime.sendMessage({
       action: "return_image_data",
       data: c.replace(/^data:image\/(png|jpeg);base64,/,""),
       title: tabtitle.replace(/[#$~!@%^&*();'"?><\[\]{}\|,:\/=+-]/g," ")
@@ -1407,7 +1407,7 @@ $(document).ready(function(){
   $editArea=$("#edit-area").disableSelection();
   showCanvas = document.getElementById("show-canvas");
   showCtx = showCanvas.getContext("2d");
-  chrome.extension.onRequest.addListener(handleReq);
+  chrome.runtime.onMessage.addListener(handleReq);
   bindShortcuts();
   $(window).unbind("resize").resize(function(){
     getEditOffset();
@@ -1446,7 +1446,7 @@ $(document).ready(function(){
       handleReq(req);
     });
   } else {
-    chrome.extension.sendRequest({action:"edit_ready"});
+    chrome.runtime.sendMessage({action:"edit_ready"});
   }
 });
 
@@ -1486,7 +1486,7 @@ SavePage.loadUserInfo=function(a,b){SavePage.requesta("loadUserInfo",{user_id:a}
 
 SavePage.signout=function(){var a=document.createElement("script");a.setAttribute("src","https://www.diigo.com/sign-out"),document.body.appendChild(a),localStorage.user_info="",SavePage.updateUserInfo()};
 
-SavePage.loginByGoogle=function(){chrome.extension.onRequest.addListener(function(a){switch(a.name){case"loginByGoogle":SavePage.request("syncItems",{folder_server_id_1:[]},function(a){chrome.extension.onRequest.removeListener(),SavePage.loadUserInfo(JSON.parse(a.response).user_id)})}})};
+SavePage.loginByGoogle=function(){chrome.runtime.onMessage.addListener(function(a){switch(a.name){case"loginByGoogle":SavePage.request("syncItems",{folder_server_id_1:[]},function(a){chrome.runtime.onMessage.removeListener(),SavePage.loadUserInfo(JSON.parse(a.response).user_id)})}})};
 
 SavePage.loginByDiigo=function(){function a(){var a=!1;return b&&c?a=!0:b&&!c?$("#account input[name=password]").focus().addClass("empty"):!b&&c?$("#account input[name=username]").focus().addClass("empty"):($("#account input[name=username]").focus().addClass("empty"),$("#account input[name=password]").addClass("empty")),a
 }var b=$('#account .loginByDiigo input[name="username"]').val(),c=$('#account .loginByDiigo input[name="password"]').val();a()&&($("#account").addClass("authing"),SavePage.request("signin",{user:b,password:c},function(a){SavePage.handleUserInfo(a)}))};
@@ -1937,11 +1937,11 @@ SavePage.initSaveOption = function(){
   $("#gdrive-user p span").bind("click",function(){$("#notice").show()});
   $("#imgur-image-name").val(tabtitle);
 
-  chrome.identity.getProfileUserInfo(function(userInfo) {
-    $("#gdrive-user").show();
-    $("#gdrive-user p span").text(userInfo.email);
-    $("#saveOptionList li.sgdrive span").text("(" + userInfo.email + ")");
-  });
+  // chrome.identity.getProfileUserInfo(function(userInfo) {
+  //   $("#gdrive-user").show();
+  //   $("#gdrive-user p span").text(userInfo.email);
+  //   $("#saveOptionList li.sgdrive span").text("(" + userInfo.email + ")");
+  // });
 
   $(".diigo .saveForm input[name=tags]").val(chrome.extension.getBackgroundPage().recommendedTags);
 
@@ -2072,4 +2072,4 @@ SavePage.init = function(){
   $("#c-tip").on("click",function(a){a.preventDefault(),showInfo(!0)});
 };
 
-chrome.extension.sendRequest({action:"close_popup"});
+chrome.runtime.sendMessage({action:"close_popup"});
