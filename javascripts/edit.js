@@ -1731,13 +1731,13 @@ SavePage.saveToGdrive = function() {
 
 SavePage.uploadToImgurAnon = function() {
   var baseURL = "https://api.imgur.com/3/";
-  var clientID = "63eca6c00cd1ff0";
+  var { client_id } = SavePage.imgurClientInfo;
   $("#imgur-upload-form").hide("fast").after($('<div class="loader">Uploading</div>'));
   $.ajax({
     url: baseURL + "image",
     type: "POST",
     headers: {
-      "Authorization": "Client-ID " + clientID
+      "Authorization": "Client-ID " + client_id
     },
     data: {
       type: "base64",
@@ -1769,11 +1769,12 @@ SavePage.uploadToImgurAnon = function() {
 }
 
 SavePage.authorizeImgur = function() {
-  var clientID = "63eca6c00cd1ff0";
+  var { client_id, redirect_uri } = SavePage.imgurClientInfo;
   var authParams = {
-    client_id: clientID,
     response_type: "token",
-    state: "imgur-auth"
+    state: "imgur-auth",
+    client_id,
+    redirect_uri
   };
   chrome.identity.launchWebAuthFlow({
     url: "https://api.imgur.com/oauth2/authorize?" + $.param(authParams),
@@ -1787,7 +1788,6 @@ SavePage.authorizeImgur = function() {
     while (m = regex.exec(redirect_url)) {
       params[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
     }
-    console.log(params);
 
     // Proceed with uploading screenshots
     SavePage.uploadToImgurAuthorized(params ["access_token"], params ["refresh_token"]);
@@ -1803,7 +1803,6 @@ SavePage.authorizeImgur = function() {
 
 SavePage.uploadToImgurAuthorized = function(accessToken, refreshToken) {
   var baseURL = "https://api.imgur.com/3/";
-  var clientID = "63eca6c00cd1ff0";
 
   /* Sends the upload request to Imgur
   ** 401 error: Asks for a new accessToken and tries again
@@ -1855,17 +1854,16 @@ SavePage.uploadToImgurAuthorized = function(accessToken, refreshToken) {
 
   // Used to obtain a new accessToken
   var refreshAccessToken = function() {
+    var { client_id, client_secret } = SavePage.imgurClientInfo;
     console.log("Refreshing token...");
     $.ajax({
       url: "https://api.imgur.com/oauth2/token",
       type: "POST",
       data: {
         refresh_token: refreshToken,
-        client_id: clientID,
         grant_type: "refresh_token",
-
-        // Bad idea, but I'm not aware of any way to solve this problem
-        client_secret: "a9651f5d33fce621510a5f83ef7e7e00e1f02641",
+        client_id,
+        client_secret
       },
       success: function(response) {
         chrome.storage.local.set({
@@ -1888,7 +1886,7 @@ SavePage.uploadToImgurAuthorized = function(accessToken, refreshToken) {
 
 SavePage.saveLocal=function(){
   var blob = showCanvas.toBlob(function(blob) {
-    var saveLink = document.createElementNS("http://www.w3.org/1999/xhtml", "a")
+    var saveLink = document.createElement("a");
     var objURL = URL.createObjectURL(blob);
     saveLink.href = objURL;
     saveLink.download = tabtitle + ".png";
@@ -2013,6 +2011,24 @@ SavePage.initSaveOption = function(){
     $("#gdrive-user").hide();
     $("#saveOptionList li.sgdrive span").text("");
   });
+
+
+  // Detect whether we're using Chrome or Firefox to pick the appropriate set of Imgur client info
+  if (window.navigator.userAgent.includes('Chrome')) {
+    SavePage.imgurClientInfo = {
+      client_id: localStorage.chrome_imgur_id,
+      client_secret: localStorage.chrome_imgur_secret,
+      redirect_uri: localStorage.chrome_imgur_redirect_uri
+    }
+  }
+  else {
+    SavePage.imgurClientInfo = {
+      client_id: localStorage.firefox_imgur_id,
+      client_secret: localStorage.firefox_imgur_secret,
+      redirect_uri: localStorage.firefox_imgur_redirect_uri
+    }
+  }
+
 
   $("#imgurOption").click(function() {
     chrome.storage.local.get("imgur_user", function(r) {

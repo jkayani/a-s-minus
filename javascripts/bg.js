@@ -203,6 +203,13 @@ localStorage.format || (localStorage.format = "png");
 localStorage.delay_sec || (localStorage.delay_sec = 3);
 localStorage.tip_touch_shown || (localStorage.tip_touch_shown = 0);
 localStorage.lastGDriveFolderID || (localStorage.lastGDriveFolderID = "");
+localStorage.chrome_imgur_id = "63eca6c00cd1ff0";
+localStorage.chrome_imgur_secret = "a9651f5d33fce621510a5f83ef7e7e00e1f02641";
+localStorage.chrome_imgur_redirect_uri = "https://bnophbnknjcjnbadhhkciahanapffepm.chromiumapp.org/imgur-redirect";
+localStorage.firefox_imgur_id = "00535883bfcef0a";
+localStorage.firefox_imgur_secret = "427a14ab339e6ec04710773d2350035aba664a3";
+localStorage.firefox_imgur_redirect_uri = "https://41e97e40cc347fa8670afced08e059aaf0ea6eb6.extensions.allizom.org";
+
 
 // Clean up old junk from localStorage.
 localStorage.removeItem("data-tracking");
