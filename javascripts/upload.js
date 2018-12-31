@@ -17,7 +17,7 @@ function readFile(a){
   var reader = new FileReader;
   reader.onload = function(a){
     var data = a.target.result;
-    chrome.extension.sendRequest({action:"upload", title:fileName, data:data});
+    chrome.runtime.sendMessage({action:"upload", title:fileName, data:data});
   };
   reader.readAsDataURL(a);
 }

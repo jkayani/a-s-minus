@@ -96,7 +96,7 @@ function initDelayedCapture(delaySeconds) {
       delayInterval = null;
       d.remove();
       console.log('boom!');
-      setTimeout(function(){chrome.extension.sendRequest({action:"visible"})}, 100);
+      setTimeout(function(){chrome.runtime.sendMessage({action:"visible"})}, 100);
     }
   }, 1000);
 }
